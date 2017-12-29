@@ -1,0 +1,230 @@
+<link rel='import' href='./toten_test/bower_components/polymer/polymer-element.html'>
+<link rel='import' href='./toten_test/bower_components/iron-image/iron-image.html'>
+<link rel='import' href='./toten_test/bower_components/paper-alert-dialog/paper-alert-dialog-icon-header.html'>
+<link rel='import' href='./toten_test/bower_components/paper-alert-dialog/paper-alert-dialog.html'>
+<link rel='import' href='./toten_test/bower_components/paper-button/paper-button.html'>
+<link rel='import' href='./toten_test/bower_components/paper-input/paper-input.html'>
+<link rel='import' href='./toten_test/bower_components/paper-spinner/paper-spinner-lite.html'>
+<link rel='import' href='./toten_test/src/ajax-form.html'>
+<link rel='import' href='./toten_test/src/shared-styles.html'>
+
+<dom-module id='form-product-model'>
+  <template>
+    <style include='shared-styles'>
+      :host {
+        display: block;
+        padding: 10px;
+      }
+
+      .styled-box {
+        align-self: center;
+        border: 1px solid;
+        padding: 8px 16px;
+        margin-top: 20px;
+        --paper-checkbox-checked-color: var(--paper-blue-900);
+        --paper-checkbox-checked-ink-color: var(--paper-blue-900);
+        --paper-checkbox-unchecked-color: var(--paper-blue-800);
+        --paper-checkbox-unchecked-ink-color: var(--paper-blue-800);
+        --paper-checkbox-label-spacing: 0;
+        --paper-checkbox-margin: 1px 16px 0px 0px;
+        --paper-checkbox-vertical-align: top;
+      }
+
+      .form-buttons > paper-button {
+        margin-top: 20px;
+        width: 35%;
+      }
+
+      .form-buttons {
+        @apply(--layout-horizontal);
+        @apply(--layout-end-justified);
+      }
+
+      .product_picture {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+      }
+
+      paper-button.indigo {
+        background-color: var(--paper-indigo-500);
+        color: white;
+        --paper-button-raised-keyboard-focus: {
+          background-color: var(--paper-pink-a200) !important;
+          color: white !important;
+        };
+      }
+      paper-button.indigo:hover {
+        background-color: var(--paper-indigo-400);
+      }
+
+    </style>
+
+    <h2> [[title]]
+      <paper-spinner-lite id='spinner'></paper-spinner-lite>
+    </h2>
+
+    <paper-input id='name' label='Nome' value="{{formData.name}}" autofocus></paper-input>
+
+    <div class='product_picture'>
+      <iron-image id='ironImage' src="{{formData.picture}}" style='width:100px; height:100px;' sizing='contain'></iron-image>
+      <input type='file' id='picture' class='styled-box' value="{{file::change}}" accept='image/*'>
+    </div>
+
+    <div class='form-buttons'>
+      <paper-button id='submit_button' class='indigo' raised on-tap='submit'>[[submit_button_name]]</paper-button>
+    </div>
+
+    <paper-alert-dialog id='dialog' confirm-button='Fechar' class='popup'>
+      <paper-alert-dialog-icon-header icon='icons:done'>[[success_message]]</paper-alert-dialog-icon-header>
+    </paper-alert-dialog>
+
+    <ajax-form
+      id='ajaxSubmit'
+      on-error='handleSubmitError'
+      on-response='handleSubmitResponse'
+      url="/product_models/[[product_id]]"></ajax-form>
+
+    <ajax-form
+      id='ajaxGet'
+      method='GET'
+      on-error='handleGetError'
+      on-response='handleGetResponse'
+      url="/product_models/[[product_id]]"></ajax-form>
+
+  </template>
+
+  <script>
+    class FormProductModel extends Polymer.Element {
+      static get is() { return 'form-product-model'; }
+
+      static get properties() {
+        return {
+          formData: {
+            type: Object,
+            value: {'name': '', 'picture': ''}
+          },
+
+          title: {
+            type: String,
+            value: ''
+          },
+
+          submit_button_name: {
+            type: String,
+              value: ''
+          },
+
+          success_message: {
+            type: String,
+              value: ''
+          },
+
+          product_id: {
+            type: String,
+            value: ''
+          },
+
+          file: {
+            type: Object,
+            observer: '_fileChanged'
+          }
+        }
+      }
+
+      reload (product_id='') {
+        this.clearFields();
+
+        this.set('product_id', product_id);
+
+        if(this.product_id != '' && this.product_id != undefined) {
+          this.$.ajaxGet.generateRequest();
+        }
+      }
+
+      handleGetResponse(data) {
+        var response = data.detail.response;
+
+        this.set('formData.name', response.name);
+        this.$.ironImage.src = this.$.ajaxGet.server + response.picture.url;
+      }
+
+      handleGetError() {
+        this.dispatchEvent(new CustomEvent('product-not-founded'));
+      }
+
+      _fileChanged(file) {
+        var image = this.$.picture.files[0];
+
+        var reader = new FileReader();
+        reader.readAsDataURL(image);
+
+        reader.onload = function (success) {
+          this.set('formData.picture', success.target.result);
+        }.bind(this);
+      }
+
+      submit() {
+        this.setSpinnerActive(true);
+
+        if(this.product_id == '') {
+          this.$.ajaxSubmit.method = 'POST';
+        } else {
+          this.$.ajaxSubmit.method = 'PUT';
+        }
+
+        this.$.ajaxSubmit.body = {'product_model': this.formData};
+        this.$.ajaxSubmit.generateRequest();
+      }
+
+      handleSubmitResponse() {
+        this.setSpinnerActive(false);
+        this.$.dialog.open();
+
+        if(this.product_id == '') {
+          this.clearFields();
+        }
+      }
+
+      handleSubmitError() {
+        this.setSpinnerActive(false);
+        var errors = this.$.ajaxSubmit.lastError.response;
+
+        for(var errorName in errors) {
+          this.$[errorName].invalid = true;
+          this.$[errorName].errorMessage = errors[errorName][0];
+        }
+      }
+
+      clearErrors() {
+        for(var field in this.formData) {
+          this.$[field].invalid = false;
+        }
+      }
+
+      clearFields() {
+        this.clearErrors();
+
+        for(var field in this.formData) {
+          this.set('formData.' + field, '');
+        }
+
+        this.set('file', undefined);
+      }
+
+      setSpinnerActive(active) {
+        var fieldsEnabled = !active;
+        this.setFieldsEnabled(fieldsEnabled);
+        this.$.spinner.active = active;
+      }
+
+      setFieldsEnabled(enabled) {
+        for(var field in this.formData) {
+          this.$[field].disabled = !enabled;
+        }
+        this.$.submit_button.disabled = !enabled;
+      }
+    }
+
+    window.customElements.define(FormProductModel.is, FormProductModel);
+  </script>
+</dom-module>

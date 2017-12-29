@@ -1,0 +1,30 @@
+<link rel='import' href='./toten_test/bower_components/polymer/polymer-element.html'>
+
+<dom-module id='my-view404'>
+  <template>
+    <style>
+      :host {
+        display: block;
+
+        padding: 10px 20px;
+      }
+    </style>
+
+    Página não encontrada. <a href="[[rootPath]]">Voltar para página inicial.</a>
+  </template>
+
+  <script>
+    class MyView404 extends Polymer.Element {
+      static get is() { return 'my-view404'; }
+      static get properties() {
+        return {
+          // This shouldn't be neccessary, but the Analyzer isn't picking up
+          // Polymer.Element#rootPath
+          rootPath: String,
+        };
+      }
+    }
+
+    window.customElements.define(MyView404.is, MyView404);
+  </script>
+</dom-module>

@@ -1,0 +1,76 @@
+<link rel='import' href='./toten_test/bower_components/polymer/polymer-element.html'>
+<link rel='import' href='./toten_test/bower_components/iron-image/iron-image.html'>
+<link rel='import' href='./toten_test/bower_components/paper-card/paper-card.html'>
+<link rel='import' href='./toten_test/bower_components/paper-styles/color.html'>
+<link rel='import' href='./toten_test/bower_components/paper-styles/typography.html'>
+<link rel='import' href='./toten_test/src/ajax-form.html'>
+<link rel='import' href='./toten_test/src/shared-styles.html'>
+
+<dom-module id='card-product-model'>
+  <template>
+    <style include='shared-styles'>
+      :host {
+        display: block;
+        padding: 10px;
+      }
+
+      .card-title {
+        @apply --layout-horizontal;
+        @apply --layout-center;
+        @apply --layout-wrap;
+        margin-top: 8px;
+        margin-bottom: 5px;
+      }
+
+      .card-product-model {
+        @apply --layout-vertical;
+        @apply --layout-center;
+        height: 175px;
+        width: 150px;
+        color: #757575;
+        border-radius: 5px;
+        background-color: #fff;
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+      }
+    </style>
+
+    <paper-card class='card-product-model'>
+      <div class='card-title'>{{name}}</div>
+      <iron-image style='width:100px; height:100px;' sizing='contain' src="{{picture}}"></iron-image>
+      <paper-icon-button icon='create' on-tap='edit'></paper-icon-button>
+    </paper-card>
+
+  </template>
+
+  <script>
+    class CardProductModel extends Polymer.Element {
+      static get is() { return 'card-product-model'; }
+
+      static get properties() {
+        return {
+          name: {
+            type: String,
+            value: ""
+          },
+
+          picture: {
+            type: String,
+            value: ""
+          },
+
+          id: {
+            type: String,
+            value: ""
+          }
+        }
+      }
+
+      edit() {
+        this.set('route.path', '/view-edit-product-model/' + this.id);
+      }
+    }
+
+    window.customElements.define(CardProductModel.is, CardProductModel);
+  </script>
+</dom-module>
+

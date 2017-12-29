@@ -1,0 +1,69 @@
+<link rel="import" href="./toten_test/bower_components/polymer/polymer.html">
+<link rel="import" href="./toten_test/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="./toten_test/bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="ajax-form">
+  <template>
+    <iron-ajax
+      id='ajax'
+      auto="{{auto}}"
+      url="[[server]][[url]]"
+      body={{body}}
+      method=[[method]]
+      last-error={{lastError}}
+      handle-as='json'
+      content-type='application/json'
+      debounce-duration="300"></iron-ajax>
+  </template>
+
+  <script>
+    class AjaxForm extends Polymer.Element {
+      static get is() { return 'ajax-form'; }
+
+      static get properties() {
+        return {
+          auto: {
+            type: Boolean,
+            value: false
+          },
+
+          body: {
+            type: Object
+          },
+
+          method: {
+            type: String
+          },
+
+          url: {
+            type: String
+          },
+
+          server: {
+            type: String,
+            value: 'http://localhost:3000',
+            readOnly: true
+          },
+
+          lastError: {
+            notify: true
+          }
+        }
+      }
+
+      generateRequest() {
+        this.$.ajax.generateRequest();
+      }
+
+      handleError(error) {
+        var errors = this.$.ajax.lastError.response;
+
+        for(var errorName in errors) {
+          console.log(errorName + ": " + errors[errorName][0]);
+        }
+      }
+    }
+
+    window.customElements.define(AjaxForm.is, AjaxForm);
+  </script>
+</dom-module>

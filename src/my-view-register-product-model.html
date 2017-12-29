@@ -1,0 +1,41 @@
+<link rel='import' href='./toten_test/bower_components/polymer/polymer-element.html'>
+<link rel='import' href='./toten_test/src/shared-styles.html'>
+<link rel='import' href='./toten_test/src/form-product-model.html'>
+
+<dom-module id='my-view-register-product-model'>
+  <template>
+    <style include='shared-styles'>
+      :host {
+        display: block;
+        padding: 10px;
+      }
+
+    </style>
+
+    <div class='card'>
+      <form-product-model
+        id='formProductModel'
+        title='Cadastrar Modelo de Produto'
+        submit_button_name='Cadastrar'
+        success_message='Cadastro realizado!'></form-product-model>
+    </div>
+
+
+  </template>
+
+  <script>
+    class MyViewRegisterProductModel extends Polymer.Element {
+      static get is() { return 'my-view-register-product-model'; }
+
+      ready() {
+        super.ready();
+        this.onEnter();
+      }
+
+      onEnter () {
+        this.$.formProductModel.reload();
+      }
+    }
+    window.customElements.define(MyViewRegisterProductModel.is, MyViewRegisterProductModel);
+  </script>
+</dom-module>

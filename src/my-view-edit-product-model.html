@@ -1,0 +1,46 @@
+<link rel='import' href='./toten_test/bower_components/polymer/polymer-element.html'>
+<link rel='import' href='./toten_test/src/shared-styles.html'>
+<link rel='import' href='./toten_test/src/form-product-model.html'>
+
+<dom-module id='my-view-edit-product-model'>
+  <template>
+    <style include='shared-styles'>
+      :host {
+        display: block;
+        padding: 10px;
+      }
+    </style>
+
+    <div class='card'>
+      <form-product-model
+        id='formProductModel'
+        title='Editar Modelo de Produto'
+        submit_button_name='Alterar'
+        success_message='Alteração realizada!'
+        on-product-not-founded='handleProductNotFounded'></form-product-model>
+    </div>
+
+  </template>
+
+  <script>
+    class MyViewEditProductModel extends Polymer.Element {
+      static get is() { return 'my-view-edit-product-model'; }
+
+      ready() {
+        super.ready();
+        this.onEnter();
+      }
+
+      onEnter() {
+        var product_id = this.get('subroute.path').substr(1);
+        this.$.formProductModel.reload(product_id);
+      }
+
+      handleProductNotFounded() {
+        this.set('route.path', '/view404');
+      }
+    }
+
+    window.customElements.define(MyViewEditProductModel.is, MyViewEditProductModel);
+  </script>
+</dom-module>
